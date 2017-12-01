@@ -30,23 +30,23 @@ a.pinMode(in3, a.OUTPUT)
 a.pinMode(in4, a.OUTPUT)
 
 try:
-	while True:
-		a.digitalWrite(in1, a.HIGH)
-		a.digitalWrite(in2, a.LOW)
-		a.analogWrite(enA, 255)
-				
-		a.digitalWrite(in3, HIGH);
-		a.digitalWrite(in4, a.LOW)
-		a.analogWrite(enB, 255)
-		a.delay(5000);
-		a.analogWrite(enA, 0)
-		a.analogWrite(enB, 0)
+    while True:
+        a.digitalWrite(in1, a.HIGH)
+        a.digitalWrite(in2, a.LOW)
+        a.analogWrite(enA, 255)
+                
+        a.digitalWrite(in3, HIGH);
+        a.digitalWrite(in4, a.LOW)
+        a.analogWrite(enB, 255)
+        a.delay(5000);
+        a.analogWrite(enA, 0)
+        a.analogWrite(enB, 0)
 except:
-	a.digitalWrite(enA, a.LOW)
-	a.digitalWrite(enB, a.LOW)
-	a.digitalWrite(in1, a.LOW)
-	a.digitalWrite(in2, a.LOW)
-	a.digitalWrite(in3, a.LOW)
-	a.digitalWrite(in4, a.LOW)
+    a.digitalWrite(enA, a.LOW)
+    a.digitalWrite(enB, a.LOW)
+    a.digitalWrite(in1, a.LOW)
+    a.digitalWrite(in2, a.LOW)
+    a.digitalWrite(in3, a.LOW)
+    a.digitalWrite(in4, a.LOW)
 
 
