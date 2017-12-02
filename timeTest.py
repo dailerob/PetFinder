@@ -15,5 +15,12 @@ except:
 #wait for a bit
 sleep(5)
 
-test = a.millis()
+startTime = int(a.millis())
 print(str(test))
+
+for i in range(1:5):
+    a.delay(1000)
+    currentTime  = int(a.millis)-startTime
+
+    print(" ")
+    print("time at iteration "+ str(i)+": " + str(currentTime))
