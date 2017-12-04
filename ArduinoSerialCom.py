@@ -1,7 +1,9 @@
 import serial
+import time
+
 time.sleep(3)
 
-ser = serial.Serial('COM3', baudrate = 9600, timeout=1)
+ser = serial.Serial('/dev/ttyACM0', baudrate = 9600, timeout=1)
 
 while 1:
 
