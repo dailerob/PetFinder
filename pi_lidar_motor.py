@@ -12,13 +12,23 @@ IO.output(20,0)
 p = IO.PWM(19,100)          #GPIO19 as PWM output, with 100Hz frequency
 
 p.start(0)                              #generate PWM signal with 0% duty cycle
-while 1:                               #execute loop forever
-	for x in range (100):                          #execute loop for 50 times, x being incremented from 0 to 49.
-		p.ChangeDutyCycle(x)               #change duty cycle for varying the brightness of LED.
-		time.sleep(0.1)    
-		                       #sleep for 100m second
-	for x in range (100):                         #execute loop for 50 times, x being incremented from 0 to 49.
-		p.ChangeDutyCycle(50-x)        #change duty cycle for changing the brightness of LED.
-		time.sleep(0.1)                          #sleep for 100m second
+y = 0
+print("right before while loop")
+for y in range (3):                               #execute loop forever
 
-IO.cleanup()
+	#for x in range (50):                          #execute loop for 50 times, x being incremented from 0 to 49.
+	#	p.ChangeDutyCycle(x)               #change duty cycle for varying the brightness of LED.
+	#	time.sleep(0.1)    
+		                       #sleep for 100m second
+	#for x in range (50):                         #execute loop for 50 times, x being incremented from 0 to 49.
+	#	p.ChangeDutyCycle(50-x)        #change duty cycle for changing the brightness of LED.
+	#	time.sleep(0.1) #sleep for 100m second
+
+	p.ChangeDutyCycle(50)
+	time.sleep(5.0)  
+
+
+		
+p.ChangeDutyCycle(0)
+
+
