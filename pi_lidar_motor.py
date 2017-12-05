@@ -9,7 +9,7 @@ IO.setup(20,IO.OUT)
 
 IO.output(16,1)
 IO.output(20,0)
-p = IO.PWM(19,100)          #GPIO19 as PWM output, with 100Hz frequency
+p = IO.PWM(19,500000)          #GPIO19 as PWM output, with 50KHz frequency
 
 p.start(0)                              #generate PWM signal with 0% duty cycle
 y = 0
