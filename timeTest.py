@@ -2,25 +2,17 @@
 #Roberto Dailey 
 #12-1-2017
 
-
-from nanpy import (ArduinoApi, SerialManager)
+import serial 
 from time import sleep
 
-try:
-    connection = SerialManager()
-    a = ArduinoApi(connection = connection)
-except:
-    print("You have failed to connect to Arduino")
 
+ser = serial.Serial('COM5', baudrate = 9600, timeout = 1)
 #wait for a bit
 sleep(5)
 
-startTime = a.millis()
-print(str(startTime))
-
-for i in range(1,5):
-    sleep(1)
-    currentTime  = a.millis()-startTime
-
-    print(" ")
-    print("time at iteration "+ str(i)+": " + str(currentTime))
+for i in range(5000):
+	arduinoData = ser.readline().decode().strip().split(",")
+	testInfo = int(arduinoData[0])
+	print('arduino Data' + str(arduinoData))
+	print(str(testInfo))
+	
