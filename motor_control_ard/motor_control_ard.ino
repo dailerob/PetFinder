@@ -89,6 +89,11 @@ void setup()
    // Reads the initial state of the outputA
    aLastState = digitalRead(outputA1); 
    aLastState = digitalRead(outputA2);  
+
+   int motor1position;
+   int motor2position;
+
+   int encoderTime;
    ///////////////////////ENCODER PIN SETUP/////
 
 }
@@ -111,6 +116,7 @@ void loop()
     //read both encoders at the same time so we get the most even reading possible
     aState = digitalRead(outputA1); // Reads the "current" state of the outputA
     bState = digitalRead(outputA2); // Reads the "current" state of the outputA
+    ecoderTime = millis()
 
     //Stuff for motor one
    // If the previous and the current state of the outputA are different, that means a Pulse has occured
@@ -138,7 +144,7 @@ void loop()
      }
      //Serial.print("Position B: ");
      //Serial.println(counter2);
-     motor12position = counter2
+     motor2position = counter2
 
    } 
    bLastState = bState; // Updates the previous state of the outputA with the current state
@@ -166,8 +172,19 @@ void loop()
 
   //////////////////////////////////////////SEND INFO TO PYTHON//////////////////////////////////////////////////
   Serial.print("S") // first sanity check 
-  Serial.print(",")
+  Serial.print(",") // first sanity check 
+  Serial.print(lidarData.data) //send lidar distance
+  Serial.print(",") // first sanity check 
+  Serial.print(lidarData.timeVal) //send time lidar distance was recorded
+  Serial.print(",") // first sanity check 
+  Serial.print(motor1position) //send motor one position
+  Serial.print(",") // first sanity check 
+  Serial.print(motor2position) //send motor two position 
+  Serial.print(",") // first sanity check 
+  Serial.print(encoderTime) //send the time that the motor position was recorded 
+  Serial.print(",") // first sanity check 
   Serial.print("E") // Last sanity check
+  Serial.print(",") // first sanity check 
   Serial.println()
   //////////////////////////////////////////SEND INFO TO PYTHON//////////////////////////////////////////////////
 }
