@@ -1,5 +1,11 @@
 
 ////////////////////////////////////////////////////LIDAR VARIABLES////////////////////////////////////////////
+//include struct definition before called
+struct dataTime{
+  long data;
+  long timeVal;
+};
+
 
 //include software serial to allow serial communication with Lidar
 #include<SoftwareSerial.h>//softserialportheaderfile 
@@ -20,7 +26,7 @@ const byte lidarEnPin = 13;
 //Handled by raspberry pi
 
 //Lidar Data Variable
-dateTime lidarData;
+struct dataTime lidarData;
 
 ////////////////////////////////////////////////////LIDAR VARIABLES////////////////////////////////////////////
 
@@ -42,16 +48,21 @@ char dir = ' ';
 
 ////////////////////////////////////////////////////ENCODER VARIABLES///////////////////////////////////////////
 
-#define outputA1 11
+ #define outputA1 11
  #define outputB1 12
- #define outputA2 3
- #define outputB2 4
+ #define outputA2 0
+ #define outputB2 1
  int counter1 = 0; 
  int counter2 = 0;
  int aState;
  int aLastState;  
  int bState;
  int bLastState;
+
+ int motor1position;
+ int motor2position;
+
+ long encoderTime;
 ////////////////////////////////////////////////////ENCODER VARIABLES///////////////////////////////////////////
 
 
@@ -77,7 +88,7 @@ void setup()
   //Handled by raspberry pi now. 
 
   //Lidar encoder pin 
-  pinMode(liEncoderPin, INPUT);
+  pinMode(lidarEnPin, INPUT);
 
   //////////////////////ENCODER PIN SETUP//////
   //Encoder pin setup
@@ -89,11 +100,6 @@ void setup()
    // Reads the initial state of the outputA
    aLastState = digitalRead(outputA1); 
    aLastState = digitalRead(outputA2);  
-
-   int motor1position;
-   int motor2position;
-
-   int encoderTime;
    ///////////////////////ENCODER PIN SETUP/////
 
 }
@@ -107,18 +113,18 @@ void loop()
   ////////////////////READ INFO FROM PYTHON/////////////////
 
   //Check external inputs 
-  lidarData = getLidarData()
+  lidarData = getLidarData();
 
   
   ///////////////////////////////////////////GET ENCODER DATA////////////////////////////////////////////////
   //I would like to eventually have this be a method, but variable dependancies made by this script's creator make that a bit difficult. 
 
-    //read both encoders at the same time so we get the most even reading possible
-    aState = digitalRead(outputA1); // Reads the "current" state of the outputA
-    bState = digitalRead(outputA2); // Reads the "current" state of the outputA
-    ecoderTime = millis()
+  //read both encoders at the same time so we get the most even reading possible
+  aState = digitalRead(outputA1); // Reads the "current" state of the outputA
+  bState = digitalRead(outputA2); // Reads the "current" state of the outputA
+  encoderTime = millis();
 
-    //Stuff for motor one
+  //Stuff for motor one
    // If the previous and the current state of the outputA are different, that means a Pulse has occured
    if (aState != aLastState){     
      // If the outputB state is different to the outputA state, that means the encoder is rotating clockwise
@@ -129,7 +135,7 @@ void loop()
      }
      //Serial.print("Position A: ");
      //Serial.println(counter1);
-     motor1position = counter1
+     motor1position = counter1;
    } 
    aLastState = aState; // Updates the previous state of the outputA with the current state
 
@@ -144,13 +150,14 @@ void loop()
      }
      //Serial.print("Position B: ");
      //Serial.println(counter2);
-     motor2position = counter2
+     motor2position = counter2;
 
    } 
    bLastState = bState; // Updates the previous state of the outputA with the current state
 
   ///////////////////////////////////////////GET ENCODER DATA////////////////////////////////////////////////
 
+  //////////////////////////////////////////INTERPERATE PYTHON COMMANDS/////////////////////////////////////
   switch (dir) {
     case 'F':
       goForward();
@@ -171,21 +178,23 @@ void loop()
   }
 
   //////////////////////////////////////////SEND INFO TO PYTHON//////////////////////////////////////////////////
-  Serial.print("S") // first sanity check 
-  Serial.print(",") // first sanity check 
-  Serial.print(lidarData.data) //send lidar distance
-  Serial.print(",") // first sanity check 
-  Serial.print(lidarData.timeVal) //send time lidar distance was recorded
-  Serial.print(",") // first sanity check 
-  Serial.print(motor1position) //send motor one position
-  Serial.print(",") // first sanity check 
-  Serial.print(motor2position) //send motor two position 
-  Serial.print(",") // first sanity check 
-  Serial.print(encoderTime) //send the time that the motor position was recorded 
-  Serial.print(",") // first sanity check 
-  Serial.print("E") // Last sanity check
-  Serial.print(",") // first sanity check 
-  Serial.println()
+  if(lidarData.data!=-1){
+      Serial.print("S"); // first sanity check 
+      Serial.print(",");  
+      Serial.print(lidarData.data); //send lidar distance
+      Serial.print(",");  
+      Serial.print(lidarData.timeVal); //send time lidar distance was recorded
+      Serial.print(",");  
+      Serial.print(motor1position); //send motor one position
+      Serial.print(",");  
+      Serial.print(motor2position); //send motor two position 
+      Serial.print(",");
+      Serial.print(encoderTime); //send the time that the motor position was recorded 
+      Serial.print(",");
+      Serial.print("E"); // Last sanity check
+      Serial.println();//end the line
+  }
+ 
   //////////////////////////////////////////SEND INFO TO PYTHON//////////////////////////////////////////////////
 }
 
@@ -251,9 +260,9 @@ void STOP()
   analogWrite(enB, 0);
 }
 
-struct getLidarData{
+dataTime getLidarData(){
   //set up the struct to return data to the loop function 
-  dateTime dataTimeVal;
+  dataTime dataTimeVal = {0,0};
 
   if(Serial1.available())
   {
@@ -269,31 +278,26 @@ struct getLidarData{
         {
           uart[i] = Serial1.read();
         }
+        dataTimeVal.timeVal = millis();
         check=uart[0]+uart[1]+uart[2]+uart[3]+uart[4]+uart[5]+uart[6]+uart[7]; 
         if(uart[8]==(check&0xff))//checkthereceiveddataasperprotocols 
         {
           dist=uart[2]+uart[3]*256;//calculate distance value 
 
           //strength=uart[4]+uart[5]*256;//calculate signal strength value 
-          dateTime.data = millis()
-          dateTime.data = dist
+          dataTimeVal.data = dist;
 
-          return dateTime
+          return dataTimeVal;
 
         }//last sanity check 
       }//check if the second sanity check comes back true 
     }//check if the first sanity check comes back true 
   }//check if the serial is available
 
-  dateTime.data = -1
-  dateTime.time = millis()
-  return dateTime
+  dataTimeVal.data = -1;
+  dataTimeVal.timeVal = millis();
+  return dataTimeVal;
 }
 
 
-
-struct dateTime{
-  long data;
-  long timeVal;
-}
 

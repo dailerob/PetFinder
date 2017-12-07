@@ -37,7 +37,7 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
-  lidar_scan();
+  //lidar_scan();
   dir = Serial.read();
   switch (dir) {
     case 'F':
