@@ -5,10 +5,10 @@ from time import sleep
 
 
 def enableLidar():
-  for x in range (50):                          #execute loop for 50 times, x being incremented from 0 to 49.
+  for x in range (40):                          #execute loop for 50 times, x being incremented from 0 to 49.
     p.ChangeDutyCycle(x)               #change duty cycle for varying the brightness of LED.
-    sleep(0.05) 
-  p.ChangeDutyCycle(50)
+    sleep(0.05)
+  p.ChangeDutyCycle(40)
 
 def disableLidar():
   p.ChangeDutyCycle(0)
@@ -45,7 +45,7 @@ IO.setup(20,IO.OUT)
 
 IO.output(16,1)
 IO.output(20,0)
-p = IO.PWM(19,500000)          #GPIO19 as PWM output, with 50KHz frequency
+p = IO.PWM(19,1000)          #GPIO19 as PWM output, with 1KHz frequency
 
 p.start(0)                              #generate PWM signal with 0% duty cycle
 
@@ -75,6 +75,8 @@ while direction != 'stop':
 
     sendMessage = input()
     direction = sendMessage[0]#get the first character of the inputed string 
+    if direction == 'D':
+      disableLidar()
     wait = sendMessage[2]#get the first character of the inputed string 
     output_serial.write(direction.encode())
     startTime = lidarTime
