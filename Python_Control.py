@@ -1,19 +1,34 @@
 ##main file for running python code within our project. 
 #serial communication library
 import serial
+from time import sleep
+
+
+def enableLidar():
+  for x in range (50):                          #execute loop for 50 times, x being incremented from 0 to 49.
+    p.ChangeDutyCycle(x)               #change duty cycle for varying the brightness of LED.
+    sleep(0.05) 
+  p.ChangeDutyCycle(50)
+
+def disableLidar():
+  p.ChangeDutyCycle(0)
+
+def readSerial(): 
+  while(1):
+    arduinoData = input_serial.readline().decode().strip().split(",")
+    print('arduino Data' + str(arduinoData))
 
 
 ##Set up Serial communication with the Lidar system 
 sleep(2)
 input_serial = serial.Serial('/dev/ttyACM0', baudrate = 9600, timeout=1)
 sleep(2)
-from time import sleep
 
 ################################check if we want to run in a debug mode where we only read the serial output########
 print("Start command loop [c] or read serial output [r]")
-startResponse = input
-  if(command == "r"):
-    readSerial()
+startResponse = input()
+if(startResponse == "r"):
+  readSerial()
 ################################check if we want to run in a debug mode where we only read the serial output########
 
 
@@ -62,12 +77,12 @@ while direction != 'stop':
     direction = sendMessage[0]#get the first character of the inputed string 
     wait = sendMessage[2]#get the first character of the inputed string 
     output_serial.write(direction.encode())
-    startTime = lidarData
+    startTime = lidarTime
 
 
   #######read###############
   arduinoData = ser.readline().decode().strip()
-  if arduinoData[0] = "S" :
+  if arduinoData[0] == "S" :
     arduinoData = arduinoData.split(",")
     lidarData = arduinoData[1]
     lidarTime = arduinoData[2]
@@ -77,7 +92,7 @@ while direction != 'stop':
     motorTimePos = arduinoData[6]
   #######read###############
 
-  if(lidarTime-Start < wait*1000): 
+  if(lidarTime-startTime < wait*1000): 
     controlOn = False
   else:
     controlOn = True
@@ -91,19 +106,7 @@ while direction != 'stop':
 disableLidar() 
 
 
-def enableLidar():
-  for x in range (50):                          #execute loop for 50 times, x being incremented from 0 to 49.
-    p.ChangeDutyCycle(x)               #change duty cycle for varying the brightness of LED.
-    time.sleep(0.05) 
-  p.ChangeDutyCycle(50)
 
-def disableLidar():
-  p.ChangeDutyCycle(0)
-
-def readSerial(): 
-  while(1):
-    arduinoData = ser.readline().decode().strip().split(",")
-    print('arduino Data' + str(arduinoData))
 
 '''
 def calcLidar(distance, encoderValue, lidarData):
