@@ -33,6 +33,8 @@ IO.output(20,0)
 p = IO.PWM(19,500000)          #GPIO19 as PWM output, with 50KHz frequency
 
 p.start(0)                              #generate PWM signal with 0% duty cycle
+
+enableLidar() #start up the lidar motor
 ##end of setup for python control of Lidar motor controller.##
 
 #start the loop 
