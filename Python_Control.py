@@ -5,10 +5,11 @@ from time import sleep
 
 
 def enableLidar():
-  for x in range (40):                          #execute loop for 50 times, x being incremented from 0 to 49.
+  power = 20
+  for x in range (power):                          #execute loop for 50 times, x being incremented from 0 to 49.
     p.ChangeDutyCycle(x)               #change duty cycle for varying the brightness of LED.
-    sleep(0.05)
-  p.ChangeDutyCycle(40)
+    sleep(0.1)
+  p.ChangeDutyCycle(power)
 
 def disableLidar():
   p.ChangeDutyCycle(0)
@@ -61,7 +62,7 @@ motor1Pos = 0
 motor2Pos = 0
 motorTimePos = 0
 
-
+direction = ' '
 
 while direction != 'stop':
   ######################################################## MAIN LOOP FOR CONTROL ############################################
