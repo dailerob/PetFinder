@@ -270,6 +270,7 @@ dataTime getLidarData(){
         {
           uart[i] = Serial1.read();
         }
+        // check the time on the arduino 
         dataTimeVal.timeVal = millis();
         check=uart[0]+uart[1]+uart[2]+uart[3]+uart[4]+uart[5]+uart[6]+uart[7]; 
         if(uart[8]==(check&0xff))//checkthereceiveddataasperprotocols 
@@ -280,6 +281,7 @@ dataTime getLidarData(){
           dataTimeVal.data = dist;
 
           return dataTimeVal;
+          break;
 
         }//last sanity check 
       }//check if the second sanity check comes back true 
