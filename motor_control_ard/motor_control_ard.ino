@@ -115,7 +115,7 @@ void loop()
 
   /////////////////////Get lidar data ///////////////////////
   lidarData = getLidarData();
-  LidarEnValue = digitalRead(LidarEnValue);
+  LidarEnValue = digitalRead(LidarEnValue);//reads the current state of the lidar encoder
   
   
   ///////////////////////////////////////////GET ENCODER DATA////////////////////////////////////////////////
@@ -206,14 +206,11 @@ void goForward()
 {
   digitalWrite(in1, HIGH);
   digitalWrite(in2, LOW);
-  analogWrite(enA, 200);
+  analogWrite(enA, 250);
   
   digitalWrite(in3, HIGH);
   digitalWrite(in4, LOW);
-  analogWrite(enB, 200);
-  delay(5000);
-  analogWrite(enA, 0);
-  analogWrite(enB, 0);
+  analogWrite(enB, 250);
 }
 
 void goBack()
@@ -225,9 +222,6 @@ void goBack()
   digitalWrite(in3, LOW);
   digitalWrite(in4, HIGH);
   analogWrite(enB, 150);
-  delay(5000);
-  analogWrite(enA, 0);
-  analogWrite(enB, 0);
 }
 
 void turnLeft()
@@ -239,9 +233,6 @@ void turnLeft()
   digitalWrite(in3, HIGH);
   digitalWrite(in4, LOW);
   analogWrite(enB, 150);
-  delay(2000);
-  analogWrite(enA, 0);
-  analogWrite(enB, 0);
 }
 
 void turnRight()
@@ -253,9 +244,6 @@ void turnRight()
   digitalWrite(in3, HIGH);
   digitalWrite(in4, LOW);
   analogWrite(enB, 150);
-  delay(2000);
-  analogWrite(enA, 0);
-  analogWrite(enB, 0);
 }
 
 void STOP()
@@ -298,7 +286,7 @@ dataTime getLidarData(){
     }//check if the first sanity check comes back true 
   }//check if the serial is available
 
-  dataTimeVal.data = -1;
+  dataTimeVal.data = -1; // the case where the lidar did not return any data
   dataTimeVal.timeVal = millis();
   return dataTimeVal;
 }
