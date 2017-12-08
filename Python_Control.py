@@ -78,7 +78,8 @@ while charInput != 'stop':
 
     sendMessage = input()
     charInput = sendMessage[0]#get the first character of the inputed string 
-    if charInput == '' 
+    if charInput == 'E' :
+      enableLidar()
     if charInput == 'D':
       disableLidar()
     else:
@@ -119,11 +120,9 @@ disableLidar()
 
 
 
-
-'''
 def calcLidar(distance, encoderValue, lidarData):
   
-  numRevsBeforeStart = 6
+  numRevsBeforeStart = 3
 
 
   prevEncoder = lidarData[0] The previous Encoder Value read
@@ -143,11 +142,15 @@ def calcLidar(distance, encoderValue, lidarData):
       if prevEncoder != encoderValue :
         pointsPerTab[currentTab]= pointsPerTab[currentTab] + len(Distances[currentTab])
         currentTab = currentTab + 1
+        Distances[currentTab].append(distance)
+      else
+        Distances[currentTab].append(distance)
 
-        Distances[]
+
+
 
 
   prevEncoder
   return (lidarData)
 
-'''
+
