@@ -22,6 +22,7 @@ const int HEADER =0x59;
 
 //Lidar Encoder
 const byte lidarEnPin = 13;
+int LidarEnValue;
 //Lidar Motor
 //Handled by raspberry pi
 
@@ -112,9 +113,10 @@ void loop()
   dir = Serial.read();
   ////////////////////READ INFO FROM PYTHON/////////////////
 
-  //Check external inputs 
+  /////////////////////Get lidar data ///////////////////////
   lidarData = getLidarData();
-
+  LidarEnValue = digitalRead(LidarEnValue);
+  
   
   ///////////////////////////////////////////GET ENCODER DATA////////////////////////////////////////////////
   //I would like to eventually have this be a method, but variable dependancies made by this script's creator make that a bit difficult. 
@@ -185,6 +187,8 @@ void loop()
       Serial.print(",");  
       Serial.print(lidarData.timeVal); //send time lidar distance was recorded
       Serial.print(",");  
+      Serial.print(LidarEnValue); //send time lidar distance was recorded
+      Serial.print(",");
       Serial.print(motor1position); //send motor one position
       Serial.print(",");  
       Serial.print(motor2position); //send motor two position 

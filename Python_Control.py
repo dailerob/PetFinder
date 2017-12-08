@@ -58,6 +58,7 @@ while direction != 'stop':
 
 		sendMessage = input()
 		direction = sendMessage[0]#get the first character of the inputed string 
+		wait = sendMessage[2]#get the first character of the inputed string 
 		output_serial.write(direction.encode())
 		startTime = lidarData
 
@@ -68,13 +69,16 @@ while direction != 'stop':
 		arduinoData = arduinoData.split(",")
 		lidarData = arduinoData[1]
 		lidarTime = arduinoData[2]
-		motor1Pos = arduinoData[3]
-		motor2Pos = arduinoData[4]
-		motorTimePos = arduinoData[5]
+		lidarEncoder = arduinoData[3]
+		motor1Pos = arduinoData[4]
+		motor2Pos = arduinoData[5]
+		motorTimePos = arduinoData[6]
 	#######read###############
 
-	if(lidarTime-Start)
-
+	if(lidarTime-Start < wait*1000): 
+		controlOn = False
+	else:
+		controlOn = True
 
 
 	######################################################## MAIN LOOP FOR CONTROL ############################################
@@ -83,8 +87,6 @@ while direction != 'stop':
 
 ###any necissary closes. 
 disableLidar() 
-
-
 
 
 def enableLidar():
@@ -101,3 +103,34 @@ def readSerial():
 		arduinoData = ser.readline().decode().strip().split(",")
 		print('arduino Data' + str(arduinoData))
 
+'''
+def calcLidar(distance, encoderValue, lidarData):
+	
+	numRevsBeforeStart = 6
+
+
+	prevEncoder = lidarData[0] The previous Encoder Value read
+	numCounts = lidarData[1] The number of counts since the encoder began counting 
+	pointsPerTab = lidarData[2] The number of points counted on each tab
+	currentTab = lidarData[3] The current tab index 
+	Distances = lidarData[4] the Distances calculated on each tab. 
+	Angles = lidarData[5] the angles for each tab
+
+	if prevEncoder != encoderValue :
+		numCounts = numCounts+1
+	
+	#wait for lidar to spin up
+	if numcounts > numRevsBeforeStart*26:
+		#use 3 revs to determine correct tabs
+		if numcounts < (numRevsBeforeStart+3)*26:
+			if prevEncoder != encoderValue :
+				pointsPerTab[currentTab]= pointsPerTab[currentTab] + len(Distances[currentTab])
+				currentTab = currentTab + 1
+
+				Distances[]
+
+
+	prevEncoder
+	return (lidarData)
+
+'''
