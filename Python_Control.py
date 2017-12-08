@@ -5,7 +5,7 @@ from time import sleep
 
 
 def enableLidar():
-  power = 20
+  power = 30
   for x in range (power):                          #execute loop for 50 times, x being incremented from 0 to 49.
     p.ChangeDutyCycle(x)               #change duty cycle for varying the brightness of LED.
     sleep(0.1)
@@ -63,6 +63,8 @@ motor2Pos = 0
 motorTimePos = 0
 
 direction = ' '
+wait = 0
+startTime = 0
 
 while direction != 'stop':
   ######################################################## MAIN LOOP FOR CONTROL ############################################
@@ -78,21 +80,22 @@ while direction != 'stop':
     direction = sendMessage[0]#get the first character of the inputed string 
     if direction == 'D':
       disableLidar()
-    wait = sendMessage[2]#get the first character of the inputed string 
-    output_serial.write(direction.encode())
-    startTime = lidarTime
+    else:
+      wait = float(sendMessage[2])#get the first character of the inputed string 
+      input_serial.write(direction.encode())
+      startTime = lidarTime
 
 
   #######read###############
-  arduinoData = ser.readline().decode().strip()
+  arduinoData = input_serial.readline().decode().strip()
   if arduinoData[0] == "S" :
     arduinoData = arduinoData.split(",")
-    lidarData = arduinoData[1]
-    lidarTime = arduinoData[2]
-    lidarEncoder = arduinoData[3]
-    motor1Pos = arduinoData[4]
-    motor2Pos = arduinoData[5]
-    motorTimePos = arduinoData[6]
+    lidarData = float(arduinoData[1])
+    lidarTime = float(arduinoData[2])
+    lidarEncoder = float(arduinoData[3])
+    motor1Pos = float(arduinoData[4])
+    motor2Pos = float(arduinoData[5])
+    motorTimePos = float(arduinoData[6])
   #######read###############
 
   if(lidarTime-startTime < wait*1000): 
