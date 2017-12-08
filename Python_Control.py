@@ -5,7 +5,7 @@ from time import sleep
 
 
 def enableLidar():
-  power = 30
+  power = 25
   for x in range (power):                          #execute loop for 50 times, x being incremented from 0 to 49.
     p.ChangeDutyCycle(x)               #change duty cycle for varying the brightness of LED.
     sleep(0.1)
@@ -50,7 +50,6 @@ p = IO.PWM(19,1000)          #GPIO19 as PWM output, with 1KHz frequency
 
 p.start(0)                              #generate PWM signal with 0% duty cycle
 
-enableLidar() #start up the lidar motor
 ##end of setup for python control of Lidar motor controller.##
 
 #start the loop 
@@ -62,40 +61,47 @@ motor1Pos = 0
 motor2Pos = 0
 motorTimePos = 0
 
-direction = ' '
+charInput = ' '
 wait = 0
 startTime = 0
+ValuesCorrect = False
 
-while direction != 'stop':
+while charInput != 'stop':
   ######################################################## MAIN LOOP FOR CONTROL ############################################
 
   if controlOn :
     ##logic for sending commands to the raspberry pi
     sendMessage = ''
     print("Enter [direction,time] to move forward/backwards or [turn direction,degrees]")
-    print("[Left = L, Right = R]")
-    print("[amount is in seconds]")
+    print("[Left = L, Right = R, Forward = F, Backwards = B]")
+    print("[Enable Lidar = E, Disable Lidar = D]")
 
     sendMessage = input()
-    direction = sendMessage[0]#get the first character of the inputed string 
-    if direction == 'D':
+    charInput = sendMessage[0]#get the first character of the inputed string 
+    if charInput == '' 
+    if charInput == 'D':
       disableLidar()
     else:
       wait = float(sendMessage[2])#get the first character of the inputed string 
-      input_serial.write(direction.encode())
+      input_serial.write(charInput.encode())
       startTime = lidarTime
 
 
   #######read###############
-  arduinoData = input_serial.readline().decode().strip()
-  if arduinoData[0] == "S" :
-    arduinoData = arduinoData.split(",")
-    lidarData = float(arduinoData[1])
-    lidarTime = float(arduinoData[2])
-    lidarEncoder = float(arduinoData[3])
-    motor1Pos = float(arduinoData[4])
-    motor2Pos = float(arduinoData[5])
-    motorTimePos = float(arduinoData[6])
+  try:
+    arduinoData = input_serial.readline().decode().strip()
+    if arduinoData[0] == "S" and arduinoData[7] == "E":
+      arduinoData = arduinoData.split(",")
+      lidarData = float(arduinoData[1])
+      lidarTime = float(arduinoData[2])
+      lidarEncoder = float(arduinoData[3])
+      motor1Pos = float(arduinoData[4])
+      motor2Pos = float(arduinoData[5])
+      motorTimePos = float(arduinoData[6])
+      ValuesCorrect = True
+  
+  except: 
+      ValuesCorrect = False
   #######read###############
 
   if(lidarTime-startTime < wait*1000): 
