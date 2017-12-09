@@ -48,8 +48,7 @@ int in2 = 8;
 int enB = 5;
 int in3 = 7;
 int in4 = 6;
-char pythonCommand = ' '; 
-
+int pythonCommand;
 ////////////////////////////////////////////////////MOTOR VARIABLES///////////////////////////////////////////
 
 
@@ -72,6 +71,8 @@ char pythonCommand = ' ';
  long encoderTime;
 
 ////////////////////////////////////PID Control/////////////////////////////////////
+int motor1goal;
+int motor2goal;
 float P_const = 0;
 float I_const = 0;
 float D_const = 0;
@@ -175,50 +176,51 @@ void loop()
 
   ///////////////////////////////////////////GET ENCODER DATA////////////////////////////////////////////////
 
-  //////////////////////////////////////////INTERPERATE PYTHON COMMANDS/////////////////////////////////////
-  pythonCommand = Serial.read():
-
-  if(pythonCommand!=-1){//check if a command was recieved
-
-    values = strtok(pythonCommand,",")
-    charCommmand = values//get the first value recieved from python
-    values = strtok(NULL,",")
-
-    if(values != NULL){
-      distance = atoi(values)
-    }//If there isnt a second value
-
-    switch (charCommmand) {
-      case 'F':
-        motor1goal = motor1position + distance
-        motor2goal = motor2position + distance
-        move();
-        break;
-      case 'B':
-        motor1goal = motor1position - distance
-        motor2goal = motor2position - distance
-        move();
-        break;
-      case 'L':
-        motor1goal = motor1position + distance
-        motor2goal = motor2position - distance
-        move();
-        break;
-      case 'R':
-        motor1goal = motor1position - distance
-        motor2goal = motor2position + distance
-        move();
-        break;
-      case 'S':
-        stop()
-    }//end of switch 
-    previousCommand = charCommmand
-  }//end of case where command is recieved
-  else{
-    charCommmand = previousCommand
-    move()
-  }
-
+  //////////////////////////////////////////INTERPERATE PYTHON COMMANDS///////////////////////////////////// 
+  pythonCommand = Serial.read();
+  int direction_int;
+  int distance;
+  int previous_command = 5;
+  
+  if(pythonCommand != -1){
+    if(pythonCommand/1000 != 0){
+      direction_int = pythonCommand/1000;
+      distance;
+      switch (direction_int) {
+        case 1: //forward
+          distance = pythonCommand - 1000;
+          motor1goal = motor1position + distance;
+          motor2goal = motor2position + distance;
+          move();
+          break;
+        case 2: //backward
+          distance = pythonCommand - 2000;
+          motor1goal = motor1position - distance;
+          motor2goal = motor2position - distance;
+          move();
+          break;
+        case 4: //left
+          distance = pythonCommand - 4000;
+          motor1goal = motor1position + distance;
+          motor2goal = motor2position - distance;
+          move();
+          break;
+        case 3: //right
+          distance = pythonCommand - 3000;
+          motor1goal = motor1position - distance;
+          motor2goal = motor2position + distance;
+          move();
+          break;
+        case 5: //stop
+          STOP();
+      }//end of switch 
+      previous_command = direction_int;
+     }
+    } 
+    else{
+    direction_int = previous_command;
+    move(); 
+    }
   //////////////////////////////////////////SEND INFO TO PYTHON//////////////////////////////////////////////////
   if(lidarData.data!=-1){
       Serial.print("S"); // first sanity check 
@@ -238,14 +240,13 @@ void loop()
       Serial.print("E"); // Last sanity check
       Serial.println();//end the line
   }
- 
+} 
   //////////////////////////////////////////SEND INFO TO PYTHON//////////////////////////////////////////////////
-}
 
 void move()
 {
-  motor1pwm = int(motor1Power)//cast values to ints for pwm
-  motor2pwm = int(motor2Power)//cast values to ints
+  int motor1pwm = int(motor1Power);//cast values to ints for pwm
+  int motor2pwm = int(motor2Power);//cast values to ints
 
   updatePID();
   if (motor1pwm > 0){//case where pid gives a positive
@@ -254,14 +255,14 @@ void move()
     analogWrite(enA, motor1pwm);
   }
   else{
-    motor1pwm = motor1pwm*-1
+    motor1pwm = motor1pwm*-1;
     digitalWrite(in1, LOW);
     digitalWrite(in2, HIGH);
     analogWrite(enA, motor1pwm);
   }
 
   if (motor2pwm>0){
-    motor2pwm = motor2pwm*-1
+    motor2pwm = motor2pwm*-1;
     digitalWrite(in3, HIGH);
     digitalWrite(in4, LOW);
     analogWrite(enB, motor2pwm);
@@ -320,24 +321,26 @@ dataTime getLidarData(){
 }
 
 void updatePID(){
-  motor1pids.d = motor1pids.d = (motor1goal-motor1position) - motor1pids.p //the derivative term
+  motor1pids.d = motor1pids.d = (motor1goal-motor1position) - motor1pids.p ;//the derivative term
   motor1pids.p = motor1goal - motor1position; //the error term
   motor1pids.i = motor1pids.i+motor1pids.p; //the addition to the integral term
 
-  motor1Power = P_const*motor1pids.P + I_const*motor1pids.I + D_const*motor1pids.D;//PID calculation
+  motor1Power = P_const*motor1pids.p + I_const*motor1pids.i + D_const*motor1pids.d;//PID calculation
   motor1Power = motor1Power*255;//transform PID to the pwm space
-  if (abs(motor1Power) > 255){//check that the PID value isnt above max
+  if (abs(motor1Power) > 255)
+  {//check that the PID value isnt above max
     motor1Power = 255;
   }
 
-  motor2pids.d = motor2pids.d = (motor2goal-motor2position) - motor2pids.p //the derivative term
+  motor2pids.d = motor2pids.d = (motor2goal-motor2position) - motor2pids.p; //the derivative term
   motor2pids.p = motor2goal - motor2position; //the error term
   motor2pids.i = motor2pids.i+motor1pids.p; //the addition to the integral term
 
-  motor2Power = P_const*motor2pids.P + I_const*motor2pids.I + D_const*motor2pids.D;//PID calculation
+  motor2Power = P_const*motor2pids.p + I_const*motor2pids.d + D_const*motor2pids.d;//PID calculation
   motor2Power = motor2Power*255;//transform PID to the pwm space
-  if (abs(motor2Power) > 255){//check that the PID value isnt above max
-    motor2Power = 255
+  if (abs(motor2Power) > 255)
+  {//check that the PID value isnt above max
+    motor2Power = 255;
   }
 }
 
