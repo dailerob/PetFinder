@@ -76,14 +76,41 @@ while charInput != 'stop':
     print("[Left = L, Right = R, Forward = F, Backwards = B]")
     print("[Enable Lidar = E, Disable Lidar = D]")
 
-    sendMessage = input()
+    sendMessage = input() #SendMessage is a string
     charInput = sendMessage[0]#get the first character of the inputed string 
     if charInput == 'E' :
-      enableLidar()
+      enableLidar() #through pi
     if charInput == 'D':
-      disableLidar()
-    else:
-      distance = float(sendMessage[2])#get the first character of the inputed string 
+      disableLidar() #through pi
+    if charInput == 'P':
+       #plot lidar
+    if charInput == 'F':
+      distance = int(sendMessage[2:])#get the first character of the inputed string 
+      sendInt = 1000
+      sendInt = sendInt+distance
+      input_serial.write(sendMessage.encode())
+      startTime = lidarTime
+    elif charInput == 'B':
+      distance = int(sendMessage[2:])#get the first character of the inputed string 
+      sendInt = 2000
+      sendInt = sendInt+distance
+      input_serial.write(sendMessage.encode())
+      startTime = lidarTime
+    elif charInput == 'R':
+      distance = int(sendMessage[2:])#get the first character of the inputed string 
+      sendInt = 3000
+      sendInt = sendInt+distance
+      input_serial.write(sendMessage.encode())
+      startTime = lidarTime
+    elif charInput == 'L':
+      distance = int(sendMessage[2:])#get the first character of the inputed string 
+      sendInt = 4000
+      sendInt = sendInt+distance
+      input_serial.write(sendMessage.encode())
+      startTime = lidarTime
+    elif charInput == 'S':
+      sendInt = 5000
+      sendInt = sendInt
       input_serial.write(sendMessage.encode())
       startTime = lidarTime
 
