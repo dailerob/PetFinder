@@ -1,8 +1,17 @@
 ##main file for running python code within our project. 
 #serial communication library
 import serial
-from time import sleep
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+from matplotlib import style
+import random
+import math
+import time
 
+style.use('dark_background')
+
+fig = plt.figure()
+ax1 = fig.add_subplot(1,1,1)
 
 def enableLidar():
   power = 25
@@ -16,8 +25,29 @@ def disableLidar():
 
 def readSerial(): 
   while(1):
-    arduinoData = input_serial.readline().decode().strip().split(",")
-    print('arduino Data' + str(arduinoData))
+    try:
+      arduinoData = input_serial.readline().decode().strip().split(",")
+      print('arduino Data' + str(arduinoData))
+    except:
+      continue
+
+def lidar_plot():
+
+  
+  def animate(i):
+    graph_data = get_data()
+    xs = []
+    ys = []
+    for a in range(len(graph_data)):
+      for b in range(a):
+        xs.append(graph_data[b][0])
+        ys.append(graph_data[b][1])
+    ax1.clear()
+    ax1.plot(xs,ys,'ro')
+  ani = animation.FuncAnimation(fig, animate, interval= 4)
+  plt.show()
+
+  
 
 
 ##Set up Serial communication with the Lidar system 
@@ -40,13 +70,13 @@ import RPi.GPIO as IO          #calling header file which helps us use GPIO’s 
 IO.setwarnings(False)           #do not show any warnings
 IO.setmode (IO.BCM)         #we are programming the GPIO by BCM pin numbers. (PIN35 as ‘GPIO19’)
 
-IO.setup(19,IO.OUT)           # initialize GPIO19 as an output.
-IO.setup(16,IO.OUT)
-IO.setup(20,IO.OUT)
+IO.setup(17,IO.OUT)           # initialize GPIO19 as an output.
+IO.setup(27,IO.OUT)
+IO.setup(22,IO.OUT)
 
-IO.output(16,1)
-IO.output(20,0)
-p = IO.PWM(19,1000)          #GPIO19 as PWM output, with 1KHz frequency
+IO.output(27,1)
+IO.output(22,0)
+p = IO.PWM(17,1000)          #GPIO19 as PWM output, with 1KHz frequency
 
 p.start(0)                              #generate PWM signal with 0% duty cycle
 
@@ -77,14 +107,16 @@ while charInput != 'stop':
     print("[Enable Lidar = E, Disable Lidar = D]")
 
     sendMessage = input() #SendMessage is a string
-    charInput = sendMessage[0]#get the first character of the inputed string 
+    charInput = sendMessage[0]#get the first character of the inputed string
+    print(charInput)
     if charInput == 'E' :
       enableLidar() #through pi
+      print("Lidar Enabled")
     if charInput == 'D':
       disableLidar() #through pi
     if charInput == 'P':
-       #plot lidar
-    if charInput == 'F':
+       lidar_plot()
+    elif charInput == 'F':
       distance = int(sendMessage[2:])#get the first character of the inputed string 
       sendInt = 1000
       sendInt = sendInt+distance
@@ -113,6 +145,8 @@ while charInput != 'stop':
       sendInt = sendInt
       input_serial.write(sendMessage.encode())
       startTime = lidarTime
+    elif charInput == 'Z":
+      contolOn = False
 
 
   #######read###############
@@ -129,11 +163,11 @@ while charInput != 'stop':
       ValuesCorrect = True
     else:
       ValuesCorrect = False
-  
   except: 
     ValuesCorrect = False
   #######read###############
 
+  
   if(lidarTime-startTime < 4*1000): 
     controlOn = False
   else:
@@ -189,6 +223,7 @@ def calcLidar(distance, encoderValue, lidarData):
 '''
 
 ##class for interpreting lidar data
+'''
 class interpreteLidar:
   numRevs = 3
   numTabs = 26
@@ -217,5 +252,5 @@ class interpreteLidar:
       if prevEncoder != currentEncoder
         pointsPerTab = 
         numcounts = numcounts +1
-
+'''
 
