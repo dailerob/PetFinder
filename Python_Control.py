@@ -62,7 +62,7 @@ motor2Pos = 0
 motorTimePos = 0
 
 charInput = ' '
-wait = 0
+wait = 4
 startTime = 0
 ValuesCorrect = False
 
@@ -72,7 +72,7 @@ while charInput != 'stop':
   if controlOn :
     ##logic for sending commands to the raspberry pi
     sendMessage = ''
-    print("Enter [direction,time] to move forward/backwards or [turn direction,degrees]")
+    print("Enter [direction,distance] to move forward/backwards or [turn direction,distance]")
     print("[Left = L, Right = R, Forward = F, Backwards = B]")
     print("[Enable Lidar = E, Disable Lidar = D]")
 
@@ -83,8 +83,8 @@ while charInput != 'stop':
     if charInput == 'D':
       disableLidar()
     else:
-      wait = float(sendMessage[2])#get the first character of the inputed string 
-      input_serial.write(charInput.encode())
+      distance = float(sendMessage[2])#get the first character of the inputed string 
+      input_serial.write(sendMessage.encode())
       startTime = lidarTime
 
 
