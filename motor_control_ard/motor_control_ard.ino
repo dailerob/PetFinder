@@ -6,6 +6,12 @@ struct dataTime{
   long timeVal;
 };
 
+struct pidVals{
+  long p;
+  long i;
+  long d;
+};
+
 
 //include software serial to allow serial communication with Lidar
 #include<SoftwareSerial.h>//softserialportheaderfile 
@@ -42,7 +48,7 @@ int in2 = 8;
 int enB = 5;
 int in3 = 7;
 int in4 = 6;
-char dir = ' '; 
+char pythonCommand = ' '; 
 
 ////////////////////////////////////////////////////MOTOR VARIABLES///////////////////////////////////////////
 
@@ -64,6 +70,20 @@ char dir = ' ';
  int motor2position;
 
  long encoderTime;
+
+////////////////////////////////////PID Control/////////////////////////////////////
+float P_const = 0;
+float I_const = 0;
+float D_const = 0;
+
+struct pidVals motor1pids;
+struct pidVals motor2pids; 
+
+float motor1Power = 0;
+float motor2Power = 0;
+float motot1goal = 0;
+float motot2goal = 0;
+
 ////////////////////////////////////////////////////ENCODER VARIABLES///////////////////////////////////////////
 
 
@@ -108,10 +128,6 @@ void setup()
 
 void loop()
 { 
-  ////////////////////READ INFO FROM PYTHON/////////////////
-  //Will become more complex as we can send more commands
-  dir = Serial.read();
-  ////////////////////READ INFO FROM PYTHON/////////////////
 
   /////////////////////Get lidar data ///////////////////////
   lidarData = getLidarData();
@@ -160,23 +176,47 @@ void loop()
   ///////////////////////////////////////////GET ENCODER DATA////////////////////////////////////////////////
 
   //////////////////////////////////////////INTERPERATE PYTHON COMMANDS/////////////////////////////////////
-  switch (dir) {
-    case 'F':
-      goForward();
-      STOP();
-      break;
-    case 'B':
-      goBack();
-      STOP();
-      break;
-    case 'L':
-      turnLeft();
-      STOP();
-      break;
-    case 'R':
-      turnRight();
-      STOP();
-      break;
+  pythonCommand = Serial.read():
+
+  if(pythonCommand!=-1){//check if a command was recieved
+
+    values = strtok(pythonCommand,",")
+    charCommmand = values//get the first value recieved from python
+    values = strtok(NULL,",")
+
+    if(values != NULL){
+      distance = atoi(values)
+    }//If there isnt a second value
+
+    switch (charCommmand) {
+      case 'F':
+        motor1goal = motor1position + distance
+        motor2goal = motor2position + distance
+        move();
+        break;
+      case 'B':
+        motor1goal = motor1position - distance
+        motor2goal = motor2position - distance
+        move();
+        break;
+      case 'L':
+        motor1goal = motor1position + distance
+        motor2goal = motor2position - distance
+        move();
+        break;
+      case 'R':
+        motor1goal = motor1position - distance
+        motor2goal = motor2position + distance
+        move();
+        break;
+      case 'S':
+        stop()
+    }//end of switch 
+    previousCommand = charCommmand
+  }//end of case where command is recieved
+  else{
+    charCommmand = previousCommand
+    move()
   }
 
   //////////////////////////////////////////SEND INFO TO PYTHON//////////////////////////////////////////////////
@@ -202,49 +242,37 @@ void loop()
   //////////////////////////////////////////SEND INFO TO PYTHON//////////////////////////////////////////////////
 }
 
-void goForward()
+void move()
 {
-  digitalWrite(in1, HIGH);
-  digitalWrite(in2, LOW);
-  analogWrite(enA, 250);
-  
-  digitalWrite(in3, HIGH);
-  digitalWrite(in4, LOW);
-  analogWrite(enB, 250);
-}
+  motor1pwm = int(motor1Power)//cast values to ints for pwm
+  motor2pwm = int(motor2Power)//cast values to ints
 
-void goBack()
-{
-  digitalWrite(in1, LOW);
-  digitalWrite(in2, HIGH);
-  analogWrite(enA, 150);
-  
-  digitalWrite(in3, LOW);
-  digitalWrite(in4, HIGH);
-  analogWrite(enB, 150);
-}
+  updatePID();
+  if (motor1pwm > 0){//case where pid gives a positive
+    digitalWrite(in1, HIGH);
+    digitalWrite(in2, LOW);
+    analogWrite(enA, motor1pwm);
+  }
+  else{
+    motor1pwm = motor1pwm*-1
+    digitalWrite(in1, LOW);
+    digitalWrite(in2, HIGH);
+    analogWrite(enA, motor1pwm);
+  }
 
-void turnLeft()
-{
-  digitalWrite(in1, LOW);
-  digitalWrite(in2, HIGH);
-  analogWrite(enA, 150);
-  
-  digitalWrite(in3, HIGH);
-  digitalWrite(in4, LOW);
-  analogWrite(enB, 150);
-}
+  if (motor2pwm>0){
+    motor2pwm = motor2pwm*-1
+    digitalWrite(in3, HIGH);
+    digitalWrite(in4, LOW);
+    analogWrite(enB, motor2pwm);
+  }
+  else{
+    digitalWrite(in3, LOW);
+    digitalWrite(in4, HIGH);
+    analogWrite(enB, motor2pwm);
+  }
+}//end of go forward method
 
-void turnRight()
-{
-  digitalWrite(in1, LOW);
-  digitalWrite(in2, HIGH);
-  analogWrite(enA, 150);
-  
-  digitalWrite(in3, HIGH);
-  digitalWrite(in4, LOW);
-  analogWrite(enB, 150);
-}
 
 void STOP()
 {
@@ -270,7 +298,6 @@ dataTime getLidarData(){
         {
           uart[i] = Serial1.read();
         }
-        // check the time on the arduino 
         dataTimeVal.timeVal = millis();
         check=uart[0]+uart[1]+uart[2]+uart[3]+uart[4]+uart[5]+uart[6]+uart[7]; 
         if(uart[8]==(check&0xff))//checkthereceiveddataasperprotocols 
@@ -281,7 +308,6 @@ dataTime getLidarData(){
           dataTimeVal.data = dist;
 
           return dataTimeVal;
-          break;
 
         }//last sanity check 
       }//check if the second sanity check comes back true 
@@ -293,5 +319,25 @@ dataTime getLidarData(){
   return dataTimeVal;
 }
 
+void updatePID(){
+  motor1pids.d = motor1pids.d = (motor1goal-motor1position) - motor1pids.p //the derivative term
+  motor1pids.p = motor1goal - motor1position; //the error term
+  motor1pids.i = motor1pids.i+motor1pids.p; //the addition to the integral term
 
+  motor1Power = P_const*motor1pids.P + I_const*motor1pids.I + D_const*motor1pids.D;//PID calculation
+  motor1Power = motor1Power*255;//transform PID to the pwm space
+  if (abs(motor1Power) > 255){//check that the PID value isnt above max
+    motor1Power = 255;
+  }
+
+  motor2pids.d = motor2pids.d = (motor2goal-motor2position) - motor2pids.p //the derivative term
+  motor2pids.p = motor2goal - motor2position; //the error term
+  motor2pids.i = motor2pids.i+motor1pids.p; //the addition to the integral term
+
+  motor2Power = P_const*motor2pids.P + I_const*motor2pids.I + D_const*motor2pids.D;//PID calculation
+  motor2Power = motor2Power*255;//transform PID to the pwm space
+  if (abs(motor2Power) > 255){//check that the PID value isnt above max
+    motor2Power = 255
+  }
+}
 

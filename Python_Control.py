@@ -100,12 +100,14 @@ while charInput != 'stop':
       motor2Pos = float(arduinoData[5])
       motorTimePos = float(arduinoData[6])
       ValuesCorrect = True
+    else:
+      ValuesCorrect = False
   
   except: 
-      ValuesCorrect = False
+    ValuesCorrect = False
   #######read###############
 
-  if(lidarTime-startTime < wait*1000): 
+  if(lidarTime-startTime < 4*1000): 
     controlOn = False
   else:
     controlOn = True
@@ -119,10 +121,13 @@ while charInput != 'stop':
 disableLidar() 
 
 
-
+'''
 def calcLidar(distance, encoderValue, lidarData):
   
   numRevsBeforeStart = 3
+  readTabsPhase = False
+  runPhase = False
+
 
 
   prevEncoder = lidarData[0] The previous Encoder Value read
@@ -137,20 +142,34 @@ def calcLidar(distance, encoderValue, lidarData):
   
   #wait for lidar to spin up
   if numcounts > numRevsBeforeStart*26:
-    #use 3 revs to determine correct tabs
+    if not readTabsPhase:
+      pointsPerTab
+
+    #use 3 revs to determine correct tab location 
     if numcounts < (numRevsBeforeStart+3)*26:
       if prevEncoder != encoderValue :
         pointsPerTab[currentTab]= pointsPerTab[currentTab] + len(Distances[currentTab])
         currentTab = currentTab + 1
         Distances[currentTab].append(distance)
-      else
+      else:
         Distances[currentTab].append(distance)
 
-
-
-
+    else:
+      if prevEncoder != encoderValue :
 
   prevEncoder
   return (lidarData)
+'''
+
+##class for interpreting lidar data
+class interpreteLidar:
+
+  def __init__():
+    prevEncoder = 0
+    numcounts = 0
+    pointsPerTab = [0]*26
+    Distances = [0]*26
+    Angles = [0]*26
+    currentTab = 0
 
 
