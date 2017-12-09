@@ -32,10 +32,33 @@ def readSerial():
       continue
 
 def lidar_plot():
+  '''
+    dist = []
+    for i in range(240):
+        dist.append(random.uniform(0,1)*2)
+    angle = []
+    for i in range(240):
+        angle.append(i)
+    data = []
+    for i in range (len(dist)):
+        temp = []
+        temp.append(dist[i]*math.cos(angle[i]*math.pi/180))
+        temp.append(dist[i]*math.sin(angle[i]*math.pi/180))
+        data.append(temp)
+    return data
+  '''
+  angles = []
+  for i in range(0,360,4.025)
+    angles.append(i)
 
-  
   def animate(i):
-    graph_data = get_data()
+    graph_data = []
+    dist = get_lidar_distances()[:90]
+    for i in range (len(angles)):
+      temp = []
+      temp.append(dist[i]*math.cos(angle[i]*math.pi/180))
+      temp.append(dist[i]*math.sin(angle[i]*math.pi/180))
+      graph_data.append(temp)
     xs = []
     ys = []
     for a in range(len(graph_data)):
@@ -78,11 +101,18 @@ IO.output(27,1)
 IO.output(22,0)
 p = IO.PWM(17,1000)          #GPIO19 as PWM output, with 1KHz frequency
 
-p.start(0)                              #generate PWM signal with 0% duty cycle
+p.start(0)
+                              #generate PWM signal with 0% duty cycle
 
 ##end of setup for python control of Lidar motor controller.##
 
 #start the loop 
+all_lidar_distances = []
+def get_lidar_distances():
+  return all_lidar_distances
+
+def add_lidar_distances(x):
+  all_lidar_distances.append(x)
 
 controlOn = True #this will be a boolean telling us weather we can stop to ask for a new command
 lidarData = 0
@@ -145,9 +175,6 @@ while charInput != 'stop':
       sendInt = sendInt
       input_serial.write(sendMessage.encode())
       startTime = lidarTime
-    elif charInput == 'Z":
-      contolOn = False
-
 
   #######read###############
   try:
@@ -155,6 +182,7 @@ while charInput != 'stop':
     if arduinoData[0] == "S" and arduinoData[7] == "E":
       arduinoData = arduinoData.split(",")
       lidarData = float(arduinoData[1])
+      add_lidar_distances(lidarData)
       lidarTime = float(arduinoData[2])
       lidarEncoder = float(arduinoData[3])
       motor1Pos = float(arduinoData[4])
@@ -165,6 +193,7 @@ while charInput != 'stop':
       ValuesCorrect = False
   except: 
     ValuesCorrect = False
+
   #######read###############
 
   
