@@ -163,13 +163,32 @@ def calcLidar(distance, encoderValue, lidarData):
 
 ##class for interpreting lidar data
 class interpreteLidar:
+  numRevs = 3
+  numTabs = 26
 
-  def __init__():
-    prevEncoder = 0
+
+  def __init__(currentEncoder):
+    prevEncoder = currentEncoder
     numcounts = 0
     pointsPerTab = [0]*26
     Distances = [0]*26
     Angles = [0]*26
+    for i in range(26):#create the lists for each tab position
+      Distances[i] = []
+      Angles[i] = []
     currentTab = 0
+
+  def update(dist, currentEncoder):
+    #check if we've started 
+    if numcounts < 26:
+      if currentEncoder == prevEncoder:
+        Distances = 
+      else:
+        numcounts = numcounts+1
+
+    if numcounts < 26*numRevs:
+      if prevEncoder != currentEncoder
+        pointsPerTab = 
+        numcounts = numcounts +1
 
 
